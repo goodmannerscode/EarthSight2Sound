@@ -7,16 +7,25 @@
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
     "typecheck": "tsc --noEmit",
-    "test": "bun test"
+    "test": "bun test",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1168.0",
     "@es2s/shared": "workspace:*",
+    "drizzle-orm": "^0.45.4",
     "hono": "^4.6.3",
+    "mysql2": "^3.24.6",
+    "sharp": "^0.35.5",
     "wavefile": "^11.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
     "@types/bun": "^1.1.10",
+    "drizzle-kit": "^0.31.11",
     "typescript": "^5.6.3"
   }
 }
