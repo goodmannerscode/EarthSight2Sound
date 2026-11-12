@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   char,
   datetime,
@@ -16,7 +17,7 @@ export const feedItems = mysqlTable(
     description: varchar("description", { length: 100 }).notNull(),
     createdAt: datetime("created_at", { mode: "date" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(now())`),
   },
   (table) => [index("feed_items_created_at_idx").on(table.createdAt)],
 );
@@ -30,11 +31,10 @@ export const jobs = mysqlTable(
     feedItemId: char("feed_item_id", { length: 36 }),
     createdAt: datetime("created_at", { mode: "date" })
       .notNull()
-      .defaultNow(),
+      .default(sql`(now())`),
     updatedAt: datetime("updated_at", { mode: "date" })
       .notNull()
-      .defaultNow()
-      .onUpdateNow(),
+      .default(sql`(now())`),
   },
   (table) => [index("jobs_created_at_idx").on(table.createdAt)],
 );

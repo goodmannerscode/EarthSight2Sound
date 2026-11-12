@@ -71,20 +71,23 @@ export const createJobRepo = (db: Database): JobRepo => ({
   },
 
   async markProcessing(id) {
-    await db.update(jobs).set({ status: "processing" }).where(eq(jobs.id, id));
+    await db
+      .update(jobs)
+      .set({ status: "processing", updatedAt: new Date() })
+      .where(eq(jobs.id, id));
   },
 
   async markDone(id, feedItemId) {
     await db
       .update(jobs)
-      .set({ status: "done", feedItemId, error: null })
+      .set({ status: "done", feedItemId, error: null, updatedAt: new Date() })
       .where(eq(jobs.id, id));
   },
 
   async markFailed(id, error) {
     await db
       .update(jobs)
-      .set({ status: "failed", error: error.slice(0, 1_000) })
+      .set({ status: "failed", error: error.slice(0, 1_000), updatedAt: new Date() })
       .where(eq(jobs.id, id));
   },
 
