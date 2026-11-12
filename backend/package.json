@@ -12,6 +12,7 @@
   "dependencies": {
     "@es2s/shared": "workspace:*",
     "hono": "^4.6.3",
+    "wavefile": "^11.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {
