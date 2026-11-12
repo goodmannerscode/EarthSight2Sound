@@ -1,7 +1,7 @@
 ---
 name: nasa-engineer
 description: Full-stack TypeScript engineer for EarthSight2Sound Converter (NASA 2026 Hackathon). Use for Next.js + Hono/Bun + MariaDB + R2 sonification work, tests, CI, and deployment.
-tools: ['codebase', 'search', 'usages', 'edit', 'runCommands', 'runTasks', 'problems', 'fetch']
+tools: ['codebase', 'search', 'usages', 'edit', 'problems', 'fetch']
 ---
 
 # EarthSight2Sound Converter — NASA 2026 Hackathon (Earth Jukebox)
@@ -95,13 +95,16 @@ frontend/tests/*.test.tsx   frontend/e2e/*.spec.ts
 
 Token budget is a first-class constraint. Violating these rules is a bug.
 
-**Never run the same command twice.**
+**One attempt per command — no exceptions.**
+- Every command gets exactly **one** execution. There is no second attempt, no "confirm", no "re-check".
 - Before running anything, check whether the result is already in the conversation. If it is, use it.
-- If a command's output was inconclusive, change the command (narrower scope, different flag) — do not re-run it verbatim.
-- No "just to confirm" re-runs. No polling loops. No repeated `--version` / `ls` / `git status` checks.
-- Batch independent probes into one call (`;`-chained) instead of several round-trips.
+- If output was empty, truncated, or inconclusive: **do not re-run**. Either change the command materially (different scope/flag) or report what you have and ask the user.
+- **Never** run a command whose only purpose is to verify a previous command's side effect (e.g. `ls` after `mkdir`, `git status` after `git add`, `--version` twice).
+- **Never** poll. No `read_powershell` loops, no waiting-and-retrying, no "let me check if it finished".
+- **Never** run the same command with cosmetic differences (different quoting, `| cat`, reordered flags) — that is the same command.
+- Batch independent probes into **one** call (`;`-chained) instead of several round-trips.
 
-**Never run token-expensive commands in the chat.** These are off-limits — ask the user to run them in their terminal and paste the output:
+**Forbidden in chat — ask the user to run these.** Do not attempt them, do not work around them:
 - Playwright / E2E suites (`playwright test`, `bun test e2e`, any browser automation)
 - Full test suites (`bun test`, `vitest run`, `pnpm -r test`) — only single-file or single-test runs are allowed
 - Builds (`next build`, `bun build`, `tsc -b` on the whole repo)
@@ -109,6 +112,7 @@ Token budget is a first-class constraint. Violating these rules is a bug.
 - Lint/format over the whole repo (`eslint .`, `prettier --write .`)
 - Anything producing > ~100 lines of output (verbose logs, `--reporter=verbose`, `git log` without `-n`, `tree`, recursive listings)
 - Long-running servers, watchers, and anything that streams output
+- **Exploratory shell archaeology** — `Get-ChildItem -Recurse` over `node_modules`, `Select-String` sweeps across package internals, grepping a dependency's `dist/` to reverse-engineer its API. Read the docs or ask instead.
 
 **Escalation protocol.** When a task needs one of the above:
 1. State the exact command to run, copy-pasteable, with the working directory.
@@ -124,3 +128,5 @@ Token budget is a first-class constraint. Violating these rules is a bug.
 5. Asking the user, when the above still costs more than it's worth.
 
 **Output hygiene.** Never dump whole files or full logs into the chat. Quote only the relevant lines. Summarize command output instead of echoing it.
+
+**Self-check before ending a turn.** If you made more than 3 tool calls for a single question, or any two calls were near-duplicates, say so explicitly and stop — do not keep going.
