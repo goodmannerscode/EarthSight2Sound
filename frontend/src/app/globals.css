@@ -1,26 +1,70 @@
 @import "tailwindcss";
 
+@theme {
+  --color-earth-50: #eef7ff;
+  --color-earth-100: #d9edff;
+  --color-earth-200: #bce0ff;
+  --color-earth-300: #8ecdff;
+  --color-earth-400: #59b0ff;
+  --color-earth-500: #338eff;
+  --color-earth-600: #1b6ef5;
+  --color-earth-700: #1457e1;
+  --color-earth-800: #1747b6;
+  --color-earth-900: #193f8f;
+  --color-earth-950: #142857;
+
+  --color-void-900: #070b14;
+  --color-void-800: #0b1220;
+  --color-void-700: #111a2c;
+  --color-void-600: #18243a;
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --radius-glass: 1rem;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: dark;
+  --background: var(--color-void-900);
+  --foreground: #e8eefc;
+  --surface: rgb(255 255 255 / 0.04);
+  --surface-border: rgb(255 255 255 / 0.09);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    background:
+      radial-gradient(
+        1200px 600px at 50% -10%,
+        rgb(51 142 255 / 0.16),
+        transparent 70%
+      ),
+      var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    min-height: 100dvh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-earth-400);
+    outline-offset: 2px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@utility glass {
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  border-radius: var(--radius-glass);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@utility text-balance {
+  text-wrap: balance;
 }
