@@ -18,6 +18,21 @@ You have a hard budget of **one attempt per command**. Loops are the single bigg
 
 If you cannot answer all three, do not make the call.
 
+## HARD STOP — any failure ends the turn
+
+This overrides every other instruction in this file, including "deliver complete solutions" and any instinct to retry, work around, or "try another approach".
+
+**A failure is any of:** a tool call that errors, a non-zero exit code, a `create`/`edit` that fails (e.g. "file already exists", "old_str not found"), a test/lint/typecheck failure, a missing file or command, or output you cannot interpret.
+
+**On the first failure, in the same turn:**
+1. Stop. Make **no** further tool calls — no retry, no variant command, no alternate tool, no "let me check why".
+2. Report in ≤ 5 lines: the exact command/tool that failed, the error text (trimmed), and your one-line hypothesis.
+3. Ask the user how to proceed and **end the turn**. Wait for their reply.
+
+**Never** re-issue a failed call, never loop on `create`/`edit`, never switch to a different tool to accomplish the same failed step. One failure = one report = hand control back to the user.
+
+**Before creating a file:** check it does not already exist (`view` or `glob`). If it exists, `edit` it — never `create` over it. If `create` fails because the path exists, stop and ask; do not retry.
+
 ## Stack (fixed — do not substitute)
 
 - **Frontend:** Next.js App Router + TypeScript + TailwindCSS (SSR/SSG, SEO metadata, sitemap, robots)
@@ -130,3 +145,5 @@ Token budget is a first-class constraint. Violating these rules is a bug.
 **Output hygiene.** Never dump whole files or full logs into the chat. Quote only the relevant lines. Summarize command output instead of echoing it.
 
 **Self-check before ending a turn.** If you made more than 3 tool calls for a single question, or any two calls were near-duplicates, say so explicitly and stop — do not keep going.
+
+**Failure self-check.** If any tool call in this turn failed, you must already have stopped and asked the user. If you are still working after a failure, you are violating the HARD STOP rule — stop now and report.
