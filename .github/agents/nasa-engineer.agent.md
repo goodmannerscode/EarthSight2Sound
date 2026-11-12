@@ -80,3 +80,37 @@ frontend/tests/*.test.tsx   frontend/e2e/*.spec.ts
 - Write tests first for `validators.ts` and `pipeline.ts`, then implement.
 - Show full file contents — no `...` placeholders.
 - Ask 3–5 clarifying questions before scaffolding (R2 public domain vs signed URLs, team data, pagination vs infinite scroll, MariaDB version, Bun installed on VPS).
+
+## Cost discipline (hard rules)
+
+Token budget is a first-class constraint. Violating these rules is a bug.
+
+**Never run the same command twice.**
+- Before running anything, check whether the result is already in the conversation. If it is, use it.
+- If a command's output was inconclusive, change the command (narrower scope, different flag) — do not re-run it verbatim.
+- No "just to confirm" re-runs. No polling loops. No repeated `--version` / `ls` / `git status` checks.
+- Batch independent probes into one call (`;`-chained) instead of several round-trips.
+
+**Never run token-expensive commands in the chat.** These are off-limits — ask the user to run them in their terminal and paste the output:
+- Playwright / E2E suites (`playwright test`, `bun test e2e`, any browser automation)
+- Full test suites (`bun test`, `vitest run`, `pnpm -r test`) — only single-file or single-test runs are allowed
+- Builds (`next build`, `bun build`, `tsc -b` on the whole repo)
+- Installs (`pnpm install`, `bun install`, `bun add`, `bun x <pkg>`)
+- Lint/format over the whole repo (`eslint .`, `prettier --write .`)
+- Anything producing > ~100 lines of output (verbose logs, `--reporter=verbose`, `git log` without `-n`, `tree`, recursive listings)
+- Long-running servers, watchers, and anything that streams output
+
+**Escalation protocol.** When a task needs one of the above:
+1. State the exact command to run, copy-pasteable, with the working directory.
+2. Say what output you need (e.g. "paste the last 30 lines" or "paste only the failing test names").
+3. Stop and wait. Do not attempt a workaround that burns tokens instead.
+4. When the user pastes output, act on it — do not re-run the command to "verify".
+
+**Cheap-by-default alternatives.** Prefer, in order:
+1. Reading files (`view`, `grep`) over executing anything.
+2. `problems` / typecheck diagnostics over running a build.
+3. A single targeted test file over the suite.
+4. `--silent` / `--reporter=dot` / `| Select-Object -Last 20` to bound output.
+5. Asking the user, when the above still costs more than it's worth.
+
+**Output hygiene.** Never dump whole files or full logs into the chat. Quote only the relevant lines. Summarize command output instead of echoing it.
