@@ -53,7 +53,7 @@ shared/schemas.ts
 backend/src/{index.ts,db/{client,schema,queries}.ts,r2.ts,pipeline.ts,validators.ts,queue.ts,routes/{upload,feed,status}.ts}
 backend/tests/{validators,pipeline,api}.test.ts
 frontend/app/{layout,page,upload/page,contact/page,sitemap,robots}.tsx
-frontend/components/{FeedCard,AudioPlayer,UploadForm,Navbar,TeamCard}.tsx
+frontend/components/{Navbar,Footer,PostCard,PlayerCard,AudioProvider,UploadCard,CollaboratorCard,SocialCard}.tsx
 frontend/lib/{api,r2}.ts
 frontend/tests/*.test.tsx   frontend/e2e/*.spec.ts
 .github/workflows/ci.yml    .pre-commit-config.yaml    Makefile    README.md
@@ -87,10 +87,114 @@ frontend/tests/*.test.tsx   frontend/e2e/*.spec.ts
 
 ## Frontend
 
-- `/` — RSC fetch of `/api/feed`, `<FeedCard>` with `next/image` (R2 `remotePatterns`) + `<AudioPlayer>` (play/pause, volume, progress) + description; empty state "No sounds yet — be the first to sonify an image."; 20/page pagination; skeleton cards + `loading.tsx`.
-- `/upload` — drag-drop + preview, `<textarea maxLength={100} required>`, submit disabled until valid, POST then poll `/api/status/{job_id}` every 2 s, on done `router.push("/")`; handle too-large / wrong-type / empty / server-error / timeout.
-- `/contact` — `<TeamCard>` grid from `team.ts` validated by `TeamMemberSchema`.
-- Dark theme, Earth-blue accents, glass cards, fast first paint (LCP < 2.5 s).
+### Routes
+
+| Route | Content |
+|---|---|
+| `/` | Header · Feed Section · Footer |
+| `/upload` | Header · Upload Section · Footer |
+| `/contact` | Header · Collaborators Feed · Footer |
+| `/about`, `/support`, `/terms`, `/privacy`, `/cookies` | Header · static content · Footer |
+
+### Header
+
+- Logo → `/` (landing)
+- Upload button → `/upload`
+- Contact → `/contact`
+- Hamburger menu opens: Logo, Upload, About, Support, Contact, Terms, Privacy, Cookies
+
+### Footer
+
+- `© {currentYear}` — computed at render, never hardcoded
+- Links: Home, About, Support, Upload, Contact, Terms, Privacy, Cookies
+
+### `/` — Home / landing
+
+Header → Feed Section → Footer.
+
+Feed Section = `PostCard`s stacked one per line, newest first, loaded progressively as the user
+scrolls down (infinite scroll via `IntersectionObserver` hitting `GET /api/feed?page=N`).
+Empty state: "No sounds yet — be the first to sonify an image." Skeleton cards + `loading.tsx`.
+
+### `/upload`
+
+Header → Upload Section → Footer.
+
+Upload Section contains a single `UploadCard` with 3 elements — 1 and 2 on the first row, 3 on the
+second row:
+
+1. **Drop zone** — drag-and-drop area; after upload it shows the image preview; also acts as
+   click-to-browse. Without an image, "Get the song" cannot be actioned.
+2. **"Get the song" button** — shows a loading indicator until the song is obtained and the feed is
+   updated, then automatically navigates to the landing page with the fresh song already at the top
+   of the feed.
+3. **Description** — mandatory; without it "Get the song" cannot be actioned.
+
+`<textarea maxLength={100} required>`, submit disabled until valid, POST then poll
+`/api/status/{job_id}` every 2 s, on done `router.push("/")`; handle too-large / wrong-type /
+empty / server-error / timeout.
+
+### `/contact`
+
+Header → Collaborators Feed → Footer.
+
+Collaborators Feed = `CollaboratorCard`s, max 2 per row when the device allows, otherwise 1 per
+row. Initially 4 collaborators, from `team.ts` validated by `TeamMemberSchema`.
+
+### `PostCard`
+
+3 elements — 1 and 2 on the first row, 3 on the last row:
+
+1. Image (`next/image`, R2 `remotePatterns`)
+2. Description
+3. `PlayerCard`
+
+### `PlayerCard`
+
+4 elements, all on one line:
+
+1. Play / Pause button — reflects the current playback state of the track
+2. Progress bar — animated fill by elapsed fraction; clicking anywhere seeks to that second
+3. Mute / Unmute — silences or restores volume
+4. Volume bar — clicking a region sets the volume accordingly
+
+**Constraints (structural, not enforced by hand):**
+
+- Two `PlayerCard`s must never play simultaneously — pressing play on one automatically deactivates
+  the other.
+- Volume and mute are **global**: setting them on one `PlayerCard` applies to all of them.
+
+Implementation: a single `AudioProvider` (React context) owns **one** `<audio>` element and the
+shared state `{ currentId, isPlaying, volume, muted, progress }` plus `play/pause/seek/setVolume/
+toggleMute`. `PlayerCard` is a pure consumer — no local audio state.
+
+### `CollaboratorCard`
+
+3 elements, one per row:
+
+1. Photo — a static image asset, no dropdown or upload
+2. Description
+3. `SocialCard`
+
+### `SocialCard`
+
+One row with 5 icons: Instagram, Facebook, Discord, YouTube, Snapchat.
+
+### Component map
+
+```
+frontend/components/
+├─ Navbar.tsx            (Header + hamburger)
+├─ Footer.tsx
+├─ PostCard.tsx
+├─ PlayerCard.tsx        (consumer of AudioProvider)
+├─ AudioProvider.tsx     (single <audio>, global volume/mute, single active track)
+├─ UploadCard.tsx
+├─ CollaboratorCard.tsx
+└─ SocialCard.tsx
+```
+
+Dark theme, Earth-blue accents, glass cards, fast first paint (LCP < 2.5 s).
 
 ## Testing & CI
 
