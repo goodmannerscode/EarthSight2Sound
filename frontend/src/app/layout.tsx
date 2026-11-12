@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { AudioProvider } from "@/components/AudioProvider";
 import { Footer } from "@/components/Footer";
 import { Navbar } from "@/components/Navbar";
 import "./globals.css";
@@ -14,7 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteUrl = process.env["NEXT_PUBLIC_SITE_URL"] ?? "http://localhost:3000";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -55,7 +56,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         </a>
         <Navbar />
         <main id="main" className="flex-1">
-          {children}
+          <AudioProvider>{children}</AudioProvider>
         </main>
         <Footer />
       </body>
