@@ -118,6 +118,7 @@ export function UploadCard() {
       const { job_id } = await uploadImage(file, description.trim());
       setPhase("processing");
       await poll(job_id);
+      router.refresh();
       router.push("/");
     } catch (cause) {
       setPhase("error");

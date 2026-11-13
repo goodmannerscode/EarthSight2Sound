@@ -1,9 +1,12 @@
 import Link from "next/link";
-import { PostCard } from "@/components/PostCard";
-import { mockFeed } from "@/lib/mock-feed";
+import { DEFAULT_PAGE_SIZE } from "@es2s/shared";
+import { FeedList } from "@/components/FeedList";
+import { fetchFeed } from "@/lib/feed";
 
-export default function Home() {
-  const items = mockFeed;
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const { items, total } = await fetchFeed(1, DEFAULT_PAGE_SIZE);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-4 py-8">
@@ -23,19 +26,11 @@ export default function Home() {
           </Link>
         </div>
 
-        {items.length === 0 ? (
-          <p className="glass px-6 py-12 text-center text-white/60">
-            No sounds yet — be the first to sonify an image.
-          </p>
-        ) : (
-          <ul className="flex flex-col gap-4">
-            {items.map((item) => (
-              <li key={item.id}>
-                <PostCard item={item} />
-              </li>
-            ))}
-          </ul>
-        )}
+        <FeedList
+          initialItems={items}
+          initialTotal={total}
+          pageSize={DEFAULT_PAGE_SIZE}
+        />
       </section>
     </div>
   );
