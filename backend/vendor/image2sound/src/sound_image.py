@@ -1,6 +1,8 @@
 import math
 import os
+import random
 import sys
+from datetime import datetime
 from typing import Self
 
 import numpy as np
@@ -206,11 +208,9 @@ class SoundImage:
         return wave
 
     def save_wav(self, side: str, array) -> None:
-        tempo: str = tempo_marking(self.tempo)
-        file_name: str = (
-            ".".join(self.path.split(".")[:-1]).split("/")[-1]
-            + f", {self.movement_type.capitalize()} in {self.key} ({tempo}){side}.wav"
-        )
+        stamp: str = datetime.now().strftime("%Y%m%d-%H%M%S")
+        suffix: str = f"{random.randint(0, 999999):06d}"
+        file_name: str = f"{stamp}-{suffix}{side}.wav"
         if self.output == "":
             pass
         elif os.path.isdir(self.output):
