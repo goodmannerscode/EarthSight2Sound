@@ -3,8 +3,6 @@ import { DEFAULT_PAGE_SIZE } from "@es2s/shared";
 import { FeedList } from "@/components/FeedList";
 import { fetchFeed } from "@/lib/feed";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
   const { items, total } = await fetchFeed(1, DEFAULT_PAGE_SIZE);
 
