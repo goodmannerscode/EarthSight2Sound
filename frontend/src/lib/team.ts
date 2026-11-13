@@ -6,7 +6,7 @@ const rawTeam = [
     name: "Ada Lovelace",
     role: "Sonification Engineer",
     bio: "Maps satellite imagery onto harmonic structures so that every coastline has its own voice.",
-    imageUrl: "https://picsum.photos/seed/team-ada/800/600",
+    imageUrl: "https://i.pravatar.cc/300?u=user-42",
     socials: {
       instagram: "https://instagram.com/",
       youtube: "https://youtube.com/",
@@ -17,7 +17,7 @@ const rawTeam = [
     name: "Grace Hopper",
     role: "Backend Lead",
     bio: "Keeps the pipeline honest: head before get, put before insert, cleanup on every throw.",
-    imageUrl: "https://picsum.photos/seed/team-grace/800/600",
+    imageUrl: "https://i.pravatar.cc/300?u=user-36",
     socials: {
       facebook: "https://facebook.com/",
       discord: "https://discord.com/",
@@ -28,7 +28,7 @@ const rawTeam = [
     name: "Katherine Johnson",
     role: "Data & Imagery",
     bio: "Verifies every orbit and every pixel before it is allowed anywhere near the sonifier.",
-    imageUrl: "https://picsum.photos/seed/team-katherine/800/600",
+    imageUrl: "https://i.pravatar.cc/300?u=user-41",
     socials: {
       youtube: "https://youtube.com/",
       snapchat: "https://snapchat.com/",
@@ -39,7 +39,7 @@ const rawTeam = [
     name: "Margaret Hamilton",
     role: "Frontend & UX",
     bio: "Builds the interface that makes a 30 second soundscape feel like standing on the shoreline.",
-    imageUrl: "https://picsum.photos/seed/team-margaret/800/600",
+    imageUrl: "https://i.pravatar.cc/300?u=user-38",
     socials: {
       instagram: "https://instagram.com/",
       discord: "https://discord.com/",
