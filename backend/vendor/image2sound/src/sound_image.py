@@ -357,8 +357,11 @@ class SoundImage:
     def downsample(self, samples: np.ndarray) -> np.ndarray:
         if RATE == OUTPUT_RATE:
             return samples
-        step = RATE // OUTPUT_RATE
-        return samples[::step]
+        target_len = int(len(samples) * OUTPUT_RATE / RATE)
+        if target_len <= 0:
+            return samples
+        indices = np.linspace(0, len(samples) - 1, target_len)
+        return samples[np.round(indices).astype(np.int64)]
 
     def fit_duration(self, samples: np.ndarray) -> np.ndarray:
         """Trim or loop the track so it lands inside [min_duration, max_duration]."""
