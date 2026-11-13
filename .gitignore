@@ -26,6 +26,9 @@ tmp/
 *.wav
 !fixtures/**/*.wav
 
+# vendored python sonifier (cloned separately, see README)
+backend/vendor/
+
 # editor / OS
 .vscode/*
 !.vscode/extensions.json

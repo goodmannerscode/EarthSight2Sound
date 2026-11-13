@@ -42,8 +42,9 @@ const makeDeps = (overrides: Partial<PipelineDeps> = {}) => {
       },
     },
     sonify: {
-      run: async () => {
+      run: async (_imagePath, outDir) => {
         calls.push("sonify");
+        return `${outDir}/track.wav`;
       },
     },
     resize: {
@@ -64,8 +65,11 @@ const makeDeps = (overrides: Partial<PipelineDeps> = {}) => {
       remove: async (path) => {
         removed.push(path);
       },
+      mkdir: async (name) => {
+        calls.push(`temp.mkdir:${name}`);
+        return `/tmp/${name}`;
+      },
     },
-    random: () => 0,
     ...overrides,
   };
 

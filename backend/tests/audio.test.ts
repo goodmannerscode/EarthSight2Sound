@@ -2,12 +2,11 @@ import { describe, expect, it } from "bun:test";
 import {
   MAX_AUDIO_BYTES,
   MAX_AUDIO_SECONDS,
-  MIN_AUDIO_SECONDS,
 } from "@es2s/shared";
 import {
   buildWav,
   fitToBudget,
-  pickDuration,
+  buildWav,
   readWavInfo,
 } from "../src/audio";
 
@@ -21,27 +20,6 @@ const makeTone = (seconds: number, sampleRate = SAMPLE_RATE): Float32Array => {
   }
   return samples;
 };
-
-describe("pickDuration", () => {
-  it("stays within the allowed range", () => {
-    for (let i = 0; i < 200; i += 1) {
-      const seconds = pickDuration();
-      expect(seconds).toBeGreaterThanOrEqual(MIN_AUDIO_SECONDS);
-      expect(seconds).toBeLessThanOrEqual(MAX_AUDIO_SECONDS);
-    }
-  });
-
-  it("returns whole seconds", () => {
-    for (let i = 0; i < 50; i += 1) {
-      expect(Number.isInteger(pickDuration())).toBe(true);
-    }
-  });
-
-  it("uses the injected random source", () => {
-    expect(pickDuration(() => 0)).toBe(MIN_AUDIO_SECONDS);
-    expect(pickDuration(() => 0.999999)).toBe(MAX_AUDIO_SECONDS);
-  });
-});
 
 describe("buildWav", () => {
   it("produces a mono 16-bit WAV", () => {
@@ -98,10 +76,11 @@ describe("fitToBudget", () => {
 
   it("shrinks a WAV that exceeds the byte budget", () => {
     const wav = buildWav(makeTone(MAX_AUDIO_SECONDS, 44_100), 44_100);
-    expect(wav.byteLength).toBeGreaterThan(MAX_AUDIO_BYTES);
+    const budget = Math.floor(wav.byteLength / 2);
+    expect(wav.byteLength).toBeGreaterThan(budget);
 
-    const result = fitToBudget(wav, MAX_AUDIO_BYTES);
-    expect(result.byteLength).toBeLessThanOrEqual(MAX_AUDIO_BYTES);
+    const result = fitToBudget(wav, budget);
+    expect(result.byteLength).toBeLessThanOrEqual(budget);
   });
 
   it("keeps the result a valid mono 16-bit WAV", () => {

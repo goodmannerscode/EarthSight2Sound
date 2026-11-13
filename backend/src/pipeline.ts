@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
 import type { FeedItem } from "@es2s/shared";
-import { fitToBudget, pickDuration } from "./audio";
+import { fitToBudget } from "./audio";
 import type { PipelineDeps } from "./ports";
 import {
   validateDescription,
@@ -69,15 +69,15 @@ export const runPipeline = async (
   const audioKey = `audio/${id}.wav`;
 
   let imagePath: string | null = null;
+  let audioDir: string | null = null;
   let audioPath: string | null = null;
   let audioUploaded = false;
 
   try {
     imagePath = await deps.temp.write(`${id}.jpg`, resized.data);
-    audioPath = await deps.temp.write(`${id}.wav`, new Uint8Array());
+    audioDir = await deps.temp.mkdir(`${id}-audio`);
 
-    const seconds = pickDuration(deps.random);
-    await deps.sonify.run(imagePath, seconds, audioPath);
+    audioPath = await deps.sonify.run(imagePath, audioDir);
 
     const rawWav = await deps.temp.read(audioPath);
     const wav = fitToBudget(rawWav);
@@ -98,6 +98,6 @@ export const runPipeline = async (
     throw toPipelineError(cause);
   } finally {
     if (imagePath) await deps.temp.remove(imagePath).catch(() => undefined);
-    if (audioPath) await deps.temp.remove(audioPath).catch(() => undefined);
+    if (audioDir) await deps.temp.remove(audioDir).catch(() => undefined);
   }
 };

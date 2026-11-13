@@ -25,6 +25,13 @@ export const createTempAdapter = (): TempPort => ({
   },
 
   async remove(path) {
-    await rm(path, { force: true });
+    await rm(path, { force: true, recursive: true });
+  },
+
+  async mkdir(name) {
+    await ensureWorkDir();
+    const path = join(WORK_DIR, `${randomUUID()}-${name}`);
+    await mkdir(path, { recursive: true });
+    return path;
   },
 });

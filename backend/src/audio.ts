@@ -1,7 +1,6 @@
 import {
   MAX_AUDIO_BYTES,
   MAX_AUDIO_SECONDS,
-  MIN_AUDIO_SECONDS,
 } from "@es2s/shared";
 
 const HEADER_BYTES = 44;
@@ -18,14 +17,6 @@ export type WavInfo = {
 };
 
 /** Random whole-second duration inside the allowed window. */
-export const pickDuration = (
-  random: () => number = Math.random,
-): number => {
-  const span = MAX_AUDIO_SECONDS - MIN_AUDIO_SECONDS + 1;
-  const offset = Math.min(span - 1, Math.floor(random() * span));
-  return MIN_AUDIO_SECONDS + offset;
-};
-
 const writeAscii = (view: DataView, offset: number, text: string): void => {
   for (let i = 0; i < text.length; i += 1) {
     view.setUint8(offset + i, text.charCodeAt(i));

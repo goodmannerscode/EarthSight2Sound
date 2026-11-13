@@ -5,10 +5,12 @@ import {
   UploadSchema,
 } from "@es2s/shared";
 import type { Context } from "hono";
+import type { StoragePort } from "../ports";
 import type { JobQueue } from "../queue";
 
 export type UploadDeps = {
   queue: JobQueue;
+  storage: StoragePort;
   createJob: () => Promise<string>;
 };
 
@@ -68,6 +70,12 @@ export const createUploadRoute = (deps: UploadDeps) => async (c: Context) => {
   const jobId = await deps.createJob();
   const extension = IMAGE_EXTENSIONS[parsed.data.mimeType] ?? "bin";
   const key = `uploads/${jobId}/${randomUUID()}.${extension}`;
+
+  await deps.storage.put(
+    key,
+    new Uint8Array(await file.arrayBuffer()),
+    parsed.data.mimeType,
+  );
 
   await deps.queue.enqueue({
     jobId,

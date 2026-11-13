@@ -1,10 +1,16 @@
 import type { SonifyPort } from "../ports";
 
 export type SonifyOptions = {
-  /** Path to the `image2sound` executable (or a venv python wrapper). */
+  /** Path to the Python interpreter that runs `image2sound`. */
   bin: string;
+  /** Directory containing `main.py`; the CLI resolves its assets relative to it. */
+  scriptDir: string;
   /** Hard kill after this many milliseconds. */
   timeoutMs: number;
+  /** Lower bound passed to `--min-duration`. */
+  minSeconds: number;
+  /** Upper bound passed to `--max-duration`. */
+  maxSeconds: number;
 };
 
 export class SonifyError extends Error {
@@ -22,19 +28,36 @@ export class SonifyError extends Error {
 /**
  * Runs the external sonifier as a child process.
  *
- * The CLI contract is `image2sound <image> <seconds> <out.wav>`. If the real
- * binary differs, only `buildArgs` needs to change.
+ * The CLI contract is `python main.py -p <image> -o <dir> --min-duration N
+ * --max-duration N`. It writes a single timestamped WAV into `outDir`; we scan
+ * for it rather than parsing stdout. If the real CLI changes, only `buildArgs`
+ * needs to change.
  */
 export const buildArgs = (
   imagePath: string,
-  seconds: number,
-  outPath: string,
-): string[] => [imagePath, String(seconds), outPath];
+  outDir: string,
+  minSeconds: number,
+  maxSeconds: number,
+): string[] => [
+  "main.py",
+  "-p",
+  imagePath,
+  "-o",
+  outDir,
+  "--min-duration",
+  String(minSeconds),
+  "--max-duration",
+  String(maxSeconds),
+];
 
 export const createSonifyAdapter = (options: SonifyOptions): SonifyPort => ({
-  async run(imagePath, seconds, outPath) {
+  async run(imagePath, outDir) {
     const proc = Bun.spawn({
-      cmd: [options.bin, ...buildArgs(imagePath, seconds, outPath)],
+      cmd: [
+        options.bin,
+        ...buildArgs(imagePath, outDir, options.minSeconds, options.maxSeconds),
+      ],
+      cwd: options.scriptDir,
       stdout: "pipe",
       stderr: "pipe",
       stdin: "ignore",
@@ -60,5 +83,14 @@ export const createSonifyAdapter = (options: SonifyOptions): SonifyPort => ({
     } finally {
       clearTimeout(timer);
     }
+
+    const produced = await Array.fromAsync(
+      new Bun.Glob("*.wav").scan({ cwd: outDir, absolute: true }),
+    );
+    const first = produced[0];
+    if (!first) {
+      throw new SonifyError("image2sound produced no WAV file", 0, "");
+    }
+    return first;
   },
 });

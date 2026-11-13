@@ -31,8 +31,9 @@ export type RepoPort = {
 };
 
 /** Runs the sonifier binary and writes a WAV to `outPath`. */
+/** Turns an image into a WAV inside `outDir` and returns the produced file path. */
 export type SonifyPort = {
-  run(imagePath: string, seconds: number, outPath: string): Promise<void>;
+  run(imagePath: string, outDir: string): Promise<string>;
 };
 
 /** Decodes, guards and resizes an image. */
@@ -45,6 +46,7 @@ export type TempPort = {
   write(name: string, data: Uint8Array): Promise<string>;
   read(path: string): Promise<Uint8Array>;
   remove(path: string): Promise<void>;
+  mkdir(name: string): Promise<string>;
 };
 
 export type PipelineDeps = {
@@ -53,5 +55,4 @@ export type PipelineDeps = {
   sonify: SonifyPort;
   resize: ResizePort;
   temp: TempPort;
-  random?: () => number;
 };

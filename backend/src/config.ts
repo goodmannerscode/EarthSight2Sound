@@ -12,7 +12,11 @@ const ConfigSchema = z.object({
     .transform((value) => value.replace(/\/+$/, "")),
   R2_ACCESS_KEY_ID: z.string().min(1, "R2_ACCESS_KEY_ID is required"),
   R2_SECRET_ACCESS_KEY: z.string().min(1, "R2_SECRET_ACCESS_KEY is required"),
-  IMAGE2SOUND_BIN: z.string().min(1).default("image2sound"),
+  IMAGE2SOUND_BIN: z.string().min(1).default("python"),
+  IMAGE2SOUND_SCRIPT_DIR: z
+    .string()
+    .min(1)
+    .default("../backend/vendor/image2sound/src"),
   IMAGE2SOUND_TIMEOUT_MS: z.coerce.number().int().positive().default(120_000),
   QUEUE_DB_PATH: z.string().min(1).default(".data/queue.sqlite"),
 });

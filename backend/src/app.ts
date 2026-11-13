@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { logger } from "hono/logger";
+import { MAX_AUDIO_SECONDS, MIN_AUDIO_SECONDS } from "@es2s/shared";
 import { createR2Adapter } from "./adapters/r2";
 import { createResizeAdapter } from "./adapters/resize";
 import { createSonifyAdapter } from "./adapters/sonify";
@@ -38,7 +39,10 @@ export const createApp = () => {
           repo: feedRepo,
           sonify: createSonifyAdapter({
             bin: config.IMAGE2SOUND_BIN,
+            scriptDir: config.IMAGE2SOUND_SCRIPT_DIR,
             timeoutMs: config.IMAGE2SOUND_TIMEOUT_MS,
+            minSeconds: MIN_AUDIO_SECONDS,
+            maxSeconds: MAX_AUDIO_SECONDS,
           }),
           resize: createResizeAdapter(),
           temp: createTempAdapter(),
@@ -67,7 +71,7 @@ export const createApp = () => {
 
   app.post(
     "/api/upload",
-    createUploadRoute({ queue, createJob: () => jobRepo.create() }),
+    createUploadRoute({ queue, storage, createJob: () => jobRepo.create() }),
   );
   app.get("/api/status/:job_id", createStatusRoute({ jobs: jobRepo }));
   app.get("/api/feed", createFeedRoute({ feed: feedRepo }));
