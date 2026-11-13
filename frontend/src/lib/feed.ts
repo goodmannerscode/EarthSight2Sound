@@ -31,13 +31,23 @@ export const fetchFeed = async (
     pageSize: String(pageSize),
   });
 
-  const response = await fetch(`${API_BASE_URL}/api/feed?${query}`, {
-    cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}/api/feed?${query}`, {
+      cache: "no-store",
+    });
+  } catch {
+    throw new ApiError(503, "The feed service is unreachable");
+  }
 
   if (!response.ok) {
     throw new ApiError(response.status, await readError(response));
   }
 
-  return FeedResponseSchema.parse(await response.json());
+  const parsed = FeedResponseSchema.safeParse(await response.json());
+  if (!parsed.success) {
+    throw new ApiError(502, "The feed service returned an unexpected payload");
+  }
+
+  return parsed.data;
 };
