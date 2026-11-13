@@ -76,7 +76,7 @@ describe("FeedList", () => {
   });
 
   it("appends the next page when the sentinel intersects", async () => {
-    const fetchMock = mock(async () =>
+    const fetchMock = mock(async (_input: RequestInfo | URL) =>
       jsonResponse({
         items: [makeItem(ID_B, "Sahara dust")],
         total: 2,
