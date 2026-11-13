@@ -18,7 +18,8 @@
     "dev": "pnpm -r --parallel --if-present dev",
     "dev:web": "pnpm --filter @es2s/frontend dev",
     "dev:api": "pnpm --filter @es2s/backend dev",
-    "e2e": "pnpm --filter @es2s/e2e test"
+    "e2e": "pnpm --filter @es2s/e2e test",
+    "start:api": "pnpm --filter @es2s/backend start"
   },
   "devDependencies": {
     "prettier": "^3.3.3",

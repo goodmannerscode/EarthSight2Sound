@@ -2,6 +2,11 @@
 node_modules/
 .pnpm-store/
 
+# VPS
+logs/
+backend/.data/
+backend/.venv/
+
 # build output
 dist/
 .next/
