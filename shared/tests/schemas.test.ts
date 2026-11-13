@@ -36,7 +36,7 @@ describe("constants", () => {
   it("exposes the documented limits", () => {
     expect(MAX_UPLOAD_BYTES).toBe(10_000_000);
     expect(MAX_IMAGE_PIXELS).toBe(50_000_000);
-    expect(MAX_AUDIO_BYTES).toBe(1_000_000);
+    expect(MAX_AUDIO_BYTES).toBe(100_000_000);
     expect(MIN_AUDIO_SECONDS).toBe(20);
     expect(MAX_AUDIO_SECONDS).toBe(30);
     expect(MAX_DESCRIPTION_LENGTH).toBe(100);
