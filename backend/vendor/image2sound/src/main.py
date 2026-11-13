@@ -85,6 +85,24 @@ parser.add_argument(
 )
 
 
+parser.add_argument(
+    "--min-duration",
+    help="Minimum output duration in seconds. Defaults to 20.",
+    type=float,
+    default=20.0,
+)
+parser.add_argument(
+    "--max-duration",
+    help="Maximum output duration in seconds. Defaults to 30.",
+    type=float,
+    default=30.0,
+)
+parser.add_argument(
+    "--multi",
+    help="Write one WAV per colour channel instead of a single mixed file.",
+    action="store_true",
+)
+
 data = vars(parser.parse_args())
 data["overrides"] = []
 for key in data:

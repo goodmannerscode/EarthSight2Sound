@@ -7,7 +7,7 @@ import { z } from "zod";
 
 export const MAX_UPLOAD_BYTES = 10_000_000;
 export const MAX_IMAGE_PIXELS = 50_000_000;
-export const MAX_AUDIO_BYTES = 1_000_000;
+export const MAX_AUDIO_BYTES = 100_000_000;
 export const MIN_AUDIO_SECONDS = 20;
 export const MAX_AUDIO_SECONDS = 30;
 export const MAX_DESCRIPTION_LENGTH = 100;

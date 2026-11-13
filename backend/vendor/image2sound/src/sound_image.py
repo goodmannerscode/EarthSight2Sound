@@ -25,6 +25,7 @@ from midi_conversion import (
 from movement_definitions import movement_type
 
 RATE: int = 44100
+OUTPUT_RATE: int = 16000
 DEFAULT_SETTINGS: dict = {
     "path": "test_image.png",
     "output": "",
@@ -38,6 +39,9 @@ DEFAULT_SETTINGS: dict = {
     "time_signature": "4/4",
     "adsr": "piano",
     "waveform": "sine",
+    "min_duration": 20.0,
+    "max_duration": 30.0,
+    "multi": False,
 }
 
 
@@ -63,6 +67,17 @@ class SoundImage:
         self.adsr: str = data["adsr"]
         self.adsr_settings: dict = envelope_settings[self.adsr]
         self.waveform: str = data["waveform"]
+        self.min_duration: float = float(data["min_duration"])
+        self.max_duration: float = float(data["max_duration"])
+        self.multi: bool = bool(data["multi"])
+        if self.max_duration < self.min_duration:
+            self.min_duration, self.max_duration = (
+                self.max_duration,
+                self.min_duration,
+            )
+        # A zero or negative tempo makes sixteenth_duration infinite, which
+        # crashes np.linspace with "arange: cannot compute length".
+        self.tempo = max(20, int(self.tempo))
 
     def open_file(self) -> Image.Image:
         return Image.open(self.path)
@@ -199,11 +214,18 @@ class SoundImage:
         if self.output == "":
             pass
         elif os.path.isdir(self.output):
-            file_name = self.output + file_name
+            file_name = os.path.join(self.output, file_name)
         else:
-            file_name = file_name
+            file_name = self.output
         with Halo(text="Saving file…", color="white"):
-            wavio.write(file_name, array, RATE, scale=2, sampwidth=3, clip="ignore")
+            wavio.write(
+                file_name,
+                self.downsample(array),
+                OUTPUT_RATE,
+                scale=2,
+                sampwidth=2,
+                clip="ignore",
+            )
             audio_file = WAVE(file_name)
             audio_file.add_tags()
             audio_file.tags.add(
@@ -306,6 +328,7 @@ class SoundImage:
             sys.exit(1)
         with Halo(text="Converting data…", color="white"):
             num_tracks: int = 4 if self.image_mode == "CMYK" else 3
+            tracks: list[np.ndarray] = []
             for track_num in range(num_tracks):
                 char: str = self.image_mode[track_num]
                 flat_array: list = flatten_image_array(self.image_array, track_num)
@@ -320,24 +343,44 @@ class SoundImage:
                             color_array.append(
                                 self.generate_wave(track_num, value, length)
                             )
-                color = "-" + char
-                self.save_wav(
-                    color,
-                    array=np.concatenate(color_array).reshape(-1, 1),
-                )
+                tracks.append(np.concatenate(color_array))
+                if self.multi:
+                    self.save_wav(
+                        "-" + char,
+                        array=tracks[-1].reshape(-1, 1),
+                    )
+            if not self.multi:
+                mixed = np.mean(np.stack(tracks), axis=0)
+                mixed = self.fit_duration(mixed)
+                self.save_wav("", array=mixed.reshape(-1, 1))
+
+    def downsample(self, samples: np.ndarray) -> np.ndarray:
+        if RATE == OUTPUT_RATE:
+            return samples
+        step = RATE // OUTPUT_RATE
+        return samples[::step]
+
+    def fit_duration(self, samples: np.ndarray) -> np.ndarray:
+        """Trim or loop the track so it lands inside [min_duration, max_duration]."""
+        current = len(samples) / RATE
+        target = min(self.max_duration, max(self.min_duration, current))
+        target_len = int(target * RATE)
+        if target_len <= 0:
+            return samples
+        if len(samples) >= target_len:
+            return samples[:target_len]
+        if len(samples) == 0:
+            return np.zeros(target_len)
+        repeats = math.ceil(target_len / len(samples))
+        return np.tile(samples, repeats)[:target_len]
 
     def generate_wave(self, track_num, freq, length) -> np.ndarray:
         amplitude: float = self.get_amplitude(track_num)
-        # Calculate the duration in seconds for a sixteenth note at the current tempo
-        sixteenth_duration: float = 60.0 / (
-            self.tempo * 4
-        )  # quarter note duration divided by 4
-        # Total duration for this note based on its length in sixteenth notes
+        sixteenth_duration: float = 60.0 / (self.tempo * 4)
         note_duration: float = sixteenth_duration * length
-        num_samples = int(RATE * note_duration)
-        if num_samples <= 0:
-            num_samples = 1
-
+        if not math.isfinite(note_duration) or note_duration <= 0:
+            note_duration = sixteenth_duration
+        num_samples = max(1, int(RATE * note_duration))
         t = np.linspace(0, note_duration, num_samples, endpoint=False)
         envelope: np.ndarray = self.get_envelope(amplitude, note_duration)
         wave: np.ndarray = np.zeros(1)

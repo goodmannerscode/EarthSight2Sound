@@ -85,6 +85,67 @@ Current status:
 | `shared/tests/schemas.test.ts` | ~90 | ✅ pass |
 | `backend/tests/validators.test.ts` | 31 | ✅ pass |
 
+## Sonification (image2sound)
+
+The vendored [`jaerrib/image2sound`](https://github.com/jaerrib/image2sound) CLI turns an image into
+music. We patched it to emit a single, duration-bounded WAV.
+
+### Python environment
+
+`image2sound` needs **Python 3.11**. Python 3.15 breaks numpy on Windows
+(`OverflowError: cannot convert longdouble infinity to integer` at import).
+
+```powershell
+conda create -n nasa python=3.11 -y
+conda activate nasa
+cd backend\vendor\image2sound
+pip install -r requirements.txt
+```
+
+### Generate an audio file
+
+Run from the repository root:
+
+```powershell
+New-Item -ItemType Directory -Force -Path backend\vendor\image2sound\output | Out-Null
+cd backend\vendor\image2sound\src
+python main.py -p test_image_rgb.png -o ..\output --min-duration 20 --max-duration 30
+```
+
+`-o` must point at an **existing directory**. If the path does not exist it is treated as a
+filename prefix and the WAV lands next to `src/`.
+
+### Verify the result
+
+```powershell
+Get-ChildItem ..\output | Select-Object Name, Length
+python -c "import wave,glob; f=glob.glob(r'..\output\*.wav')[0]; w=wave.open(f); print(f); print('rate:', w.getframerate(), 'frames:', w.getnframes(), 'seconds:', round(w.getnframes()/w.getframerate(), 2))"
+```
+
+Expected: `rate: 16000` and `seconds` between **20 and 30**.
+
+### CLI flags we added
+
+| Flag | Default | Meaning |
+|---|---|---|
+| `--min-duration` | `20` | Minimum output length in seconds |
+| `--max-duration` | `30` | Maximum output length in seconds |
+| `--multi` | off | Write one WAV per colour channel instead of a single mixed file |
+
+### Output format
+
+- **One** WAV file, mixed from the R/G/B channels
+- **16-bit PCM mono at 16 kHz** — 30 s ≈ 960 KB
+- Duration clamped to `[min_duration, max_duration]`: trimmed when longer, looped when shorter
+- Cover art embedded as an ID3 `APIC` frame
+
+### Patches applied to the vendor code
+
+| File | Change |
+|---|---|
+| `src/main.py` | `--min-duration`, `--max-duration`, `--multi` arguments |
+| `src/sound_image.py` | `OUTPUT_RATE = 16000`; `min_duration` / `max_duration` / `multi` in `DEFAULT_SETTINGS`; tempo clamped to ≥ 20 BPM; `save_wav` writes 16-bit at `OUTPUT_RATE` and joins the output directory correctly; `convert_with_comp_engine` mixes channels by default; new `downsample` and `fit_duration` helpers; `generate_wave` guards against non-finite note durations |
+
 ## Architecture
 
 Ports & adapters — the pipeline core imports no concrete adapter:
