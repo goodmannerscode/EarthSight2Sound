@@ -337,8 +337,7 @@ class SoundImage:
         num_samples = int(RATE * note_duration)
         if num_samples <= 0:
             num_samples = 1
-        print(f"DEBUG: note_duration={note_duration!r}, num_samples={num_samples!r}, length={length!r}")
-        print(f"DEBUG: types -> note_duration={type(note_duration).__name__}, num_samples={type(num_samples).__name__}")
+
         t = np.linspace(0, note_duration, num_samples, endpoint=False)
         envelope: np.ndarray = self.get_envelope(amplitude, note_duration)
         wave: np.ndarray = np.zeros(1)

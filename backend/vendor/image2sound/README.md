@@ -17,19 +17,6 @@ source .venv/bin/activate
 python3 -m pip install -r requirements.txt
 ```
 
-### Python 3.15+ / conda
-
-`requirements.txt` pins `pillow==12.1.0`, which has no prebuilt wheel for
-Python 3.15 and fails to compile from source on Windows. Install Pillow from
-conda-forge first, then install the remaining requirements without it:
-
-```
-conda install -n <env> -c conda-forge pillow
-Get-Content requirements.txt | Where-Object { $_ -notmatch '^\s*pillow' } | Set-Content requirements-nopillow.txt
-python -m pip install -r requirements-nopillow.txt
-Remove-Item requirements-nopillow.txt
-```
-
 ## To run
 
 Simply running `python3 main.py` from inside the src folder will generate audio
