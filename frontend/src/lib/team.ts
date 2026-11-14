@@ -6,7 +6,7 @@ const rawTeam = [
     name: "Ana Maria",
     role: "Sonification Engineer",
     bio: "Maps satellite imagery onto harmonic structures so that every coastline has its own voice.",
-    imageUrl: "https://i.pravatar.cc/300?u=user-42",
+    imageUrl: "/team/anamaria.webp",
     socials: {
       instagram: "https://instagram.com/",
       youtube: "https://youtube.com/",
@@ -17,7 +17,7 @@ const rawTeam = [
     name: "Alexandru Pitton",
     role: "Backend Lead",
     bio: "Keeps the pipeline honest: head before get, put before insert, cleanup on every throw.",
-    imageUrl: "https://i.pravatar.cc/300?u=user-36",
+    imageUrl: "/team/alex.webp",
     socials: {
       instagram: "https://www.instagram.com/TerraKode",
       discord: "https://discord.gg/bh9duTN9Yz",      
@@ -28,7 +28,7 @@ const rawTeam = [
     name: "Ioana",
     role: "Data & Imagery",
     bio: "Verifies every orbit and every pixel before it is allowed anywhere near the sonifier.",
-    imageUrl: "https://i.pravatar.cc/300?u=user-41",
+    imageUrl: "/team/ioana.webp",
     socials: {
       youtube: "https://youtube.com/",
       snapchat: "https://snapchat.com/",
@@ -39,7 +39,7 @@ const rawTeam = [
     name: "Claudia",
     role: "Frontend & UX",
     bio: "Builds the interface that makes a 30 second soundscape feel like standing on the shoreline.",
-    imageUrl: "https://i.pravatar.cc/300?u=user-38",
+    imageUrl: "/team/claudia.webp",
     socials: {
       instagram: "https://instagram.com/",
       discord: "https://discord.com/",

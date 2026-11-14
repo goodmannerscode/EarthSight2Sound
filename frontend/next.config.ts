@@ -10,11 +10,7 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "pub-c5312941d1a24d1883e646aab4436e22.r2.dev",
-      },
-      {
-        protocol: "https",
-        hostname: "i.pravatar.cc",
-      },
+      }
     ],
   },
   turbopack: {
