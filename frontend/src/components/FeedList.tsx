@@ -14,7 +14,6 @@ type FeedListProps = {
 export function FeedList({ initialItems, initialTotal, pageSize }: FeedListProps) {
   const [items, setItems] = useState<FeedItem[]>(initialItems);
   const [total, setTotal] = useState(initialTotal);
-  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -39,7 +38,6 @@ export function FeedList({ initialItems, initialTotal, pageSize }: FeedListProps
       });
       setTotal(result.total);
       pageRef.current = nextPage;
-      setPage(nextPage);
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Could not load more");
     } finally {

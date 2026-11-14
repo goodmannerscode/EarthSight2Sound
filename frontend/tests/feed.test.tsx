@@ -76,12 +76,14 @@ describe("FeedList", () => {
   });
 
   it("appends the next page when the sentinel intersects", async () => {
-    const fetchMock = mock(async (_input: RequestInfo | URL) =>
-      jsonResponse({
+    let requestedUrl = "";
+    const fetchMock = mock(async (input: RequestInfo | URL) => {
+      requestedUrl = String(input);
+      return jsonResponse({
         items: [makeItem(ID_B, "Sahara dust")],
         total: 2,
-      }),
-    );
+      });
+    });
     globalThis.fetch = fetchMock as unknown as typeof fetch;
 
     renderFeed({
@@ -102,7 +104,6 @@ describe("FeedList", () => {
     });
 
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const requestedUrl = String(fetchMock.mock.calls[0]?.[0]);
     expect(requestedUrl).toContain("/api/feed?page=2&pageSize=1");
     expect(screen.queryByTestId("feed-sentinel")).toBeNull();
   });

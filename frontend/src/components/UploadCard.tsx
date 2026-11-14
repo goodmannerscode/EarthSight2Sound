@@ -118,8 +118,8 @@ export function UploadCard() {
       const { job_id } = await uploadImage(file, description.trim());
       setPhase("processing");
       await poll(job_id);
-      router.refresh();
       router.push("/");
+      router.refresh();
     } catch (cause) {
       setPhase("error");
       if (cause instanceof ApiError) {

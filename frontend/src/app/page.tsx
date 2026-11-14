@@ -25,6 +25,7 @@ export default async function Home() {
         </div>
 
         <FeedList
+          key={items.map((item) => item.id).join(",")}
           initialItems={items}
           initialTotal={total}
           pageSize={DEFAULT_PAGE_SIZE}
